@@ -14,7 +14,7 @@ async function getApi(url) {
     })
     // Catch error
     .catch(function (err) {
-      console.log("Une erreur est survenue");
+      console.log(err);
     });
 }
 // Call product API
@@ -35,16 +35,3 @@ function showItems(data) {
   });
   document.getElementById("items").innerHTML = itemCards;
 }
-
-//Display all id nos for items?
-fetch("http://127.0.0.1:3000/api/products")
-  .then(function (res) {
-    if (res.ok) {
-      return res.json();
-    }
-  })
-  .then(function (data) {
-    for (let idNo of data) {
-      console.log(idNo._id);
-    }
-  });
