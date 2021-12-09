@@ -11,6 +11,7 @@ fetch("http://localhost:3000/api/products/" + id)
   })
   .then(function (eachItemData) {
     displayInfo(eachItemData);
+    addToCart(eachItemData);
   })
   // Catch error
   .catch(function (err) {
@@ -33,3 +34,24 @@ function displayInfo(eachItemData) {
     document.getElementById("colors").appendChild(newOption);
   }
 }
+
+//Function to save user selections (color and quantity) and add to cart
+function addToCart(eachItemData) {
+  const addToCartButton = document.getElementById("addToCart");
+  addToCartButton.addEventListener("click", (e) => {
+    e.preventDefault();
+    const userColorChoice = document.getElementById("colors").value;
+    const userQuantityChoice = document.getElementById("quantity").value;
+    let selectedProduct = [
+      {
+        name: eachItemData.name,
+        productId: eachItemData._id,
+        quantity: userQuantityChoice,
+        color: userColorChoice,
+      },
+    ];
+    console.log(selectedProduct);
+  });
+}
+
+//Function to add user selections to local storage for items added to cart
