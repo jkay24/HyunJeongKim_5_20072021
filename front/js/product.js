@@ -35,11 +35,12 @@ function displayInfo(eachItemData) {
   }
 }
 
-//Function to save user selections (color and quantity) and add to cart
+//Function to save user selections (color and quantity) and add to cart (local storage)
 function addToCart(eachItemData) {
   const addToCartButton = document.getElementById("addToCart");
   addToCartButton.addEventListener("click", (e) => {
     e.preventDefault();
+    //1. Add products to cart with user selections for color and quantity
     const userColorChoice = document.getElementById("colors").value;
     const userQuantityChoice = document.getElementById("quantity").value;
     let selectedProduct = [
@@ -51,7 +52,27 @@ function addToCart(eachItemData) {
       },
     ];
     console.log(selectedProduct);
+    //2. Function to add user selections to local storage
+    let productSavedToLocal = JSON.parse(localStorage.getItem("product"));
+    function addToLocalStorage() {
+      productSavedToLocal.push(selectedProduct);
+      localStorage.setItem("product", JSON.stringify(productSavedToLocal));
+    }
+    //if there's already something in local storage, add object to existing array
+    if (productSavedToLocal) {
+      addToLocalStorage();
+      //TO DO?!: update quantity if product of same id and color already exists (instead of making new object in array)
+      if (productSavedToLocal != null) {
+        productSavedToLocal[selectedProduct.productId].quantity += 1;
+      } else {
+        selectedProduct = {
+          [product.quantity]: selectedProduct,
+        };
+      }
+    } //if there was nothing in local storage, start fresh
+    else {
+      productSavedToLocal = [];
+      addToLocalStorage();
+    }
   });
 }
-
-//Function to add user selections to local storage for items added to cart

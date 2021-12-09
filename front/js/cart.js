@@ -1,31 +1,6 @@
 //Adding data to local storage for items added to cart
-
-let productId = document.getElementById("data-id").value;
-let productColor = document
-  .getElementsByClassName("cart__item__content__description")[0]
-  .querySelector("cart__item__content__description:nth-child[1]").value;
-let productQuantity = document.getElementsByClassName("itemQuantity")[0];
-
-let products = [
-  {
-    productId: productId + 1,
-    quantity: productQuantity,
-    color: productColor,
-  },
-];
-
-function addProduct() {
-  let products = [];
-  if (localStorage.getItem("products")) {
-    products = JSON.parse(localStorage.getItem("products"));
-  }
-  products.push({
-    productId: productId + 1,
-    quantity: productQuantity,
-    color: productColor,
-  });
-  localStorage.setItem("products", JSON.stringify(products));
-}
+let productSavedToLocal = JSON.parse(localStorage.getItem("product"));
+console.log(productSavedToLocal);
 
 //Function to delete items from cart
 let deleteCartItems = document.getElementsByClassName("deleteItem");
