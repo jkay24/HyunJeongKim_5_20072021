@@ -62,14 +62,13 @@ function addToCart(eachItemData) {
     if (productSavedToLocal) {
       addToLocalStorage();
       //TO DO?!: update quantity if product of same id and color already exists (instead of making new object in array)
-      if (productSavedToLocal != null) {
-        productSavedToLocal[selectedProduct.productId].quantity += 1;
+      if (productSavedToLocal[eachItemData._id]) {
+        productSavedToLocal[eachItemData._id].quantity++;
       } else {
-        selectedProduct = {
-          [product.quantity]: selectedProduct,
-        };
+        productSavedToLocal[eachItemData._id] = { selectedProduct };
       }
-    } //if there was nothing in local storage, start fresh
+    }
+    //if there was nothing in local storage, start fresh
     else {
       productSavedToLocal = [];
       addToLocalStorage();
