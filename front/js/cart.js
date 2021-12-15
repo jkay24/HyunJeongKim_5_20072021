@@ -3,7 +3,7 @@ let productSavedToLocal = JSON.parse(localStorage.getItem("product"));
 console.log(productSavedToLocal);
 const cartItems = document.getElementById("cart__items");
 
-//Display products in cart on recap table (photo not working?)
+//Display products in cart on recap table
 if (productSavedToLocal === null) {
   //if cart is empty:
   cartItems.innerHTML = "Le panier est vide.";
@@ -14,7 +14,7 @@ if (productSavedToLocal === null) {
     displayCartItems += `
       <article class="cart__item" data-id="{product-ID}" data-color="{product-color}">
       <div class="cart__item__img">
-      <img src="${values.imageSrc}" alt="${values.imgTxt}">
+      <img src="${values.imgSrc}" alt="${values.imgTxt}">
       </div>
       <div class="cart__item__content">
         <div class="cart__item__content__description">
@@ -44,21 +44,36 @@ for (let i = 0; i < deleteCartItems.length; i++) {
   button.addEventListener("click", function (e) {
     let buttonClicked = e.target;
     buttonClicked.parentElement.parentElement.parentElement.parentElement.remove();
-    //now apply to local storage
+    //now delete also from local storage
     e.preventDefault();
     productSavedToLocal.splice(i, 1);
     localStorage.setItem("product", JSON.stringify(productSavedToLocal));
   });
 }
 
-//Update cart quantity - NOT WORKING
-let quantityInput = document.getElementsByClassName("itemQuantity")[0].value;
-console.log(quantityInput+);
+//Display total cart quantity - NOT WORKING (cannot get sum of values in for loop)
+let totalQuantity = document.getElementById("totalQuantity");
+function sum(productSavedToLocal) {
+  let sum = 0;
+  for (let i = 0; i < productSavedToLocal.length; i++) {
+    let quantities = productSavedToLocal[i].quantity;
+    console.log(quantities);
+    sum += productSavedToLocal[i].quantity;
+  }
+  console.log(sum);
+}
+totalQuantity.innerHTML = sum(productSavedToLocal);
+
+//update cart quantity upon click - NOT WORKING (total displays "([object HTMLInputElement]")
+let quantityInput = document.getElementsByClassName("itemQuantity");
 for (let i = 0; i < quantityInput.length; i++) {
   let input = quantityInput[i];
   input.addEventListener("change", function (e) {
     let input = e.target;
-    document.getElementById("totalQuantity").innerHTML = input;
+    totalQuantity.innerHTML = input;
+    //now also update quantity in local storage - NOT WORKING (input wrong?)
+    productSavedToLocal[i].quantity = input;
+    localStorage.setItem("product", JSON.stringify(productSavedToLocal));
   });
   updateTotalPrice();
 }

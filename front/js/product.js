@@ -27,7 +27,7 @@ function displayInfo(eachItemData) {
   newImg.alt = eachItemData.altTxt;
   newImg.src = eachItemData.imageUrl;
   document.getElementsByClassName("item__img")[0].appendChild(newImg);
-  for (var i = 0; i < eachItemData.colors.length; i++) {
+  for (let i = 0; i < eachItemData.colors.length; i++) {
     let newOption = document.createElement("option");
     newOption.value = eachItemData.colors[i];
     newOption.text = eachItemData.colors[i];
@@ -46,7 +46,7 @@ function addToCart(eachItemData) {
     let selectedProduct = {
       name: eachItemData.name,
       productId: eachItemData._id,
-      quantity: userQuantityChoice,
+      quantity: parseInt(userQuantityChoice),
       color: userColorChoice,
       imgSrc: eachItemData.imageUrl,
       imgTxt: eachItemData.altTxt,
@@ -59,22 +59,22 @@ function addToCart(eachItemData) {
       productSavedToLocal.push(selectedProduct);
       localStorage.setItem("product", JSON.stringify(productSavedToLocal));
     }
-    //NOT WORKING - if there's already something in local storage, add object to existing array
+    //if there's already something in local storage, add object to existing array
     if (productSavedToLocal) {
-      addToLocalStorage();
-      if (
-        productSavedToLocal.some(
-          (selectedProduct) =>
-            selectedProduct.id === eachItemData._id &&
-            selectedProduct.color === userColorChoice
-        )
-      ) {
-        console.log("Product already in cart.");
-      } else {
-        console.log("Product added for first time.");
+      const ifExists = productSavedToLocal.find(
+        (element) =>
+          element.productId == selectedProduct.productId &&
+          element.color == selectedProduct.color
+      );
+      //check if item with same ID and color has already been selected - if so increment quantity, so that there are no duplicates
+      if (ifExists) {
+        ifExists.quantity = ifExists.quantity + selectedProduct.quantity;
+        localStorage.setItem("product", JSON.stringify(productSavedToLocal));
+        return;
       }
+      addToLocalStorage();
     }
-    //if there was nothing in local storage, start fresh
+    //if there was nothing in local storage, start new cart
     else {
       productSavedToLocal = [];
       addToLocalStorage();
