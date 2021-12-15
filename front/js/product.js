@@ -61,12 +61,12 @@ function addToCart(eachItemData) {
     }
     //if there's already something in local storage, add object to existing array
     if (productSavedToLocal) {
+      //first check if item with same ID and color has already been selected - if so increment quantity, so that there are no duplicates
       const ifExists = productSavedToLocal.find(
         (element) =>
           element.productId == selectedProduct.productId &&
           element.color == selectedProduct.color
       );
-      //check if item with same ID and color has already been selected - if so increment quantity, so that there are no duplicates
       if (ifExists) {
         ifExists.quantity = ifExists.quantity + selectedProduct.quantity;
         localStorage.setItem("product", JSON.stringify(productSavedToLocal));
