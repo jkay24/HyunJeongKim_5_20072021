@@ -4,7 +4,7 @@ console.log(productSavedToLocal);
 const cartItems = document.getElementById("cart__items");
 
 //Display products in cart on recap table
-if (productSavedToLocal === null) {
+if (productSavedToLocal === null || sumQuantity(productSavedToLocal) === 0) {
   //if cart is empty:
   cartItems.innerHTML = "Le panier est vide.";
 } else {
@@ -37,45 +37,49 @@ if (productSavedToLocal === null) {
   cartItems.innerHTML = displayCartItems;
 }
 
-//Delete items from cart - doesn't display "le panier est vide" once everything deleted!
+//Delete items from cart - @once everything is deleted, localstorage shows [] instead of empty, is that a potential problem?
 let deleteCartItems = document.getElementsByClassName("deleteItem");
 for (let i = 0; i < deleteCartItems.length; i++) {
   let button = deleteCartItems[i];
   button.addEventListener("click", function (e) {
     let buttonClicked = e.target;
     buttonClicked.parentElement.parentElement.parentElement.parentElement.remove();
-    //now delete also from local storage
-    e.preventDefault();
+    //Now delete also from local storage
     productSavedToLocal.splice(i, 1);
     localStorage.setItem("product", JSON.stringify(productSavedToLocal));
+    //Then update total quantity in cart and refresh - @can I do this without reloading?
+    sumQuantity();
+    window.location.href = "cart.html";
   });
 }
 
-//Display total cart quantity - NOT WORKING (cannot get sum of values in for loop)
+//Display total cart quantity
 let totalQuantity = document.getElementById("totalQuantity");
-function sum(productSavedToLocal) {
+function sumQuantity() {
   let sum = 0;
   for (let i = 0; i < productSavedToLocal.length; i++) {
-    let quantities = productSavedToLocal[i].quantity;
-    console.log(quantities);
     sum += productSavedToLocal[i].quantity;
   }
-  console.log(sum);
+  return sum;
 }
-totalQuantity.innerHTML = sum(productSavedToLocal);
+totalQuantity.innerHTML = sumQuantity(productSavedToLocal);
 
-//update cart quantity upon click - NOT WORKING (total displays "([object HTMLInputElement]")
+//update total cart quantity upon user modification
 let quantityInput = document.getElementsByClassName("itemQuantity");
 for (let i = 0; i < quantityInput.length; i++) {
   let input = quantityInput[i];
   input.addEventListener("change", function (e) {
     let input = e.target;
-    totalQuantity.innerHTML = input;
-    //now also update quantity in local storage - NOT WORKING (input wrong?)
-    productSavedToLocal[i].quantity = input;
+    console.log(input.value);
+    input.innerHTML = input.value;
+    //now also update quantity in local storage
+    productSavedToLocal[i].quantity = parseInt(input.value);
     localStorage.setItem("product", JSON.stringify(productSavedToLocal));
+    //Then update total quantity in cart and refresh - @can I do this without reloading?
+    sumQuantity();
+    window.location.href = "cart.html";
+    updateTotalPrice();
   });
-  updateTotalPrice();
 }
 
 //Function to update cart total price - NOT WORKING
