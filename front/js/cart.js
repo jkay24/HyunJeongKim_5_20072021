@@ -70,14 +70,20 @@ for (let i = 0; i < quantityInput.length; i++) {
   let input = quantityInput[i];
   input.addEventListener("change", function (e) {
     let input = e.target;
-    console.log(input.value);
+    debugger;
     input.innerHTML = input.value;
+    console.log(quantityInput.length);
+    console.log(i);
+    document.querySelector(
+      `.cart__item__content__settings__quantity:nth-child(${i + 1}) > p`
+    ).innerHTML = "Qté : " + input.value;
+
     //now also update quantity in local storage
     productSavedToLocal[i].quantity = parseInt(input.value);
     localStorage.setItem("product", JSON.stringify(productSavedToLocal));
     //Then update total quantity in cart and refresh - @can I do this without reloading?
     sumQuantity();
-    window.location.href = "cart.html";
+    //window.location.href = "cart.html";
     updateTotalPrice();
   });
 }
@@ -90,7 +96,7 @@ function updateTotalPrice() {
     let item = eachCartItem[i];
     let priceElement = eachCartItem
       .getElementsByClassName("cart__item__content__description")[0]
-      .querySelector("cart__item__content__description:last-child");
+      .querySelector(".cart__item__content__description:last-child");
     let quantityElement = document.getElementsByClassName("itemQuantity")[0];
     let price = parseFloat(priceElement.innerText.replace("€", ""));
     let quantity = quantityElement.value;
