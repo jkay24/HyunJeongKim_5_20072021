@@ -21,7 +21,9 @@ fetch("http://localhost:3000/api/products/" + id)
 //Function to show info per product
 function displayInfo(eachItemData) {
   document.getElementById("title").innerHTML = eachItemData.name;
-  document.getElementById("price").innerHTML = eachItemData.price;
+  document.getElementById("price").innerHTML = numberWithSpaces(
+    eachItemData.price
+  );
   document.getElementById("description").innerHTML = eachItemData.description;
   let newImg = document.createElement("img");
   newImg.alt = eachItemData.altTxt;
@@ -80,4 +82,9 @@ function addToCart(eachItemData) {
       addToLocalStorage();
     }
   });
+}
+
+//Function to display numbers 999+ with spaces (Fr style)
+function numberWithSpaces(x) {
+  return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }

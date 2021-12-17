@@ -4,15 +4,15 @@ console.log(productSavedToLocal);
 const cartItems = document.getElementById("cart__items");
 
 //Display products in cart on recap table
-if (productSavedToLocal === null || sumQuantity(productSavedToLocal) === 0) {
+if (productSavedToLocal === null) {
   //if cart is empty:
   cartItems.innerHTML = "Le panier est vide.";
 } else {
-  //if cart is not empty:
+  //if cart is not empty: @need to show just the price numbers with space for thousands...!
   let displayCartItems = [];
   productSavedToLocal.map((values) => {
     displayCartItems += `
-      <article class="cart__item" data-id="{product-ID}" data-color="{product-color}">
+      <article class="cart__item" data-id="${values.productId}" data-color="${values.color}">
       <div class="cart__item__img">
       <img src="${values.imgSrc}" alt="${values.imgTxt}">
       </div>
@@ -37,19 +37,25 @@ if (productSavedToLocal === null || sumQuantity(productSavedToLocal) === 0) {
   cartItems.innerHTML = displayCartItems;
 }
 
-//Delete items from cart - @once everything is deleted, localstorage shows [] instead of empty, is that a potential problem?
+//Delete items from cart
 let deleteCartItems = document.getElementsByClassName("deleteItem");
 for (let i = 0; i < deleteCartItems.length; i++) {
   let button = deleteCartItems[i];
   button.addEventListener("click", function (e) {
+    e.preventDefault();
     let buttonClicked = e.target;
     buttonClicked.parentElement.parentElement.parentElement.parentElement.remove();
-    //Now delete also from local storage
+    //Then delete also from local storage
     productSavedToLocal.splice(i, 1);
     localStorage.setItem("product", JSON.stringify(productSavedToLocal));
     //Then update total quantity in cart and refresh - @can I do this without reloading?
     sumQuantity();
     window.location.href = "cart.html";
+    //If all items have been deleted, remove product key from local storage so above function can display "Le panier est vide." message
+    if (sumQuantity(productSavedToLocal) === 0) {
+      localStorage.removeItem("product");
+    }
+    sumTotalPrice();
   });
 }
 
@@ -57,50 +63,70 @@ for (let i = 0; i < deleteCartItems.length; i++) {
 let totalQuantity = document.getElementById("totalQuantity");
 function sumQuantity() {
   let sum = 0;
-  for (let i = 0; i < productSavedToLocal.length; i++) {
-    sum += productSavedToLocal[i].quantity;
+  //If cart is empty: display 0 @shows undefined - not working because it conflicts with the else innerHTML...?
+  if (productSavedToLocal === null) {
+    totalQuantity.innerHTML = "0";
   }
-  return sum;
+  //If cart is not empty: calculate and display sum
+  else {
+    for (let i = 0; i < productSavedToLocal.length; i++) {
+      sum += productSavedToLocal[i].quantity;
+    }
+    return sum;
+  }
 }
-totalQuantity.innerHTML = sumQuantity(productSavedToLocal);
+totalQuantity.innerHTML = sumQuantity();
 
-//update total cart quantity upon user modification
+//Update total cart quantity upon user modification
 let quantityInput = document.getElementsByClassName("itemQuantity");
 for (let i = 0; i < quantityInput.length; i++) {
   let input = quantityInput[i];
   input.addEventListener("change", function (e) {
+    e.preventDefault();
     let input = e.target;
-    debugger;
     input.innerHTML = input.value;
-    console.log(quantityInput.length);
-    console.log(i);
-    document.querySelector(
-      `.cart__item__content__settings__quantity:nth-child(${i + 1}) > p`
-    ).innerHTML = "Qté : " + input.value;
+    //document.querySelector(
+    //   `.cart__item__content__settings__quantity:nth-child(${i + 1}) > p`
+    //).innerHTML = "Qté : " + input.value;
+    //
 
-    //now also update quantity in local storage
+    //Then also update quantity in local storage
     productSavedToLocal[i].quantity = parseInt(input.value);
     localStorage.setItem("product", JSON.stringify(productSavedToLocal));
     //Then update total quantity in cart and refresh - @can I do this without reloading?
     sumQuantity();
-    //window.location.href = "cart.html";
-    updateTotalPrice();
+    window.location.href = "cart.html";
+    sumTotalPrice();
   });
 }
 
-//Function to update cart total price - NOT WORKING
-function updateTotalPrice() {
-  let eachCartItem = cartItems.getElementsByClassName("cart__item")[0];
-  let total = 0;
-  for (let i = 0; i < eachCartItem.length; i++) {
-    let item = eachCartItem[i];
-    let priceElement = eachCartItem
-      .getElementsByClassName("cart__item__content__description")[0]
-      .querySelector(".cart__item__content__description:last-child");
-    let quantityElement = document.getElementsByClassName("itemQuantity")[0];
-    let price = parseFloat(priceElement.innerText.replace("€", ""));
-    let quantity = quantityElement.value;
-    total = total + price * quantity;
+//Display cart total price
+let displayTotalPrice = document.getElementById("totalPrice");
+function sumTotalPrice() {
+  let totalPrice = 0;
+  //If cart is empty: display 0 @shows undefined - not working because it conflicts with the else innerHTML...?
+  if (productSavedToLocal === null) {
+    displayTotalPrice.innerHTML = "0";
   }
-  document.getElementById("totalPrice").innerText = total;
+  //If cart is not empty:
+  else {
+    for (let i = 0; i < productSavedToLocal.length; i++) {
+      totalPrice +=
+        productSavedToLocal[i].price * productSavedToLocal[i].quantity;
+    }
+    return totalPrice;
+  }
+}
+document.getElementById("totalPrice").innerHTML = numberWithSpaces(
+  sumTotalPrice()
+);
+
+//Function to display numbers 999+ with spaces (Fr style)
+function numberWithSpaces(x) {
+  if (productSavedToLocal === null) {
+  }
+  //If cart is not empty:
+  else {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  }
 }
