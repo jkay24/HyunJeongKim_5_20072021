@@ -12,7 +12,9 @@ if (productSavedToLocal === null) {
   let displayCartItems = [];
   productSavedToLocal.map((values) => {
     displayCartItems += `
-      <article class="cart__item" data-id="${values.productId}" data-color="${values.color}">
+      <article class="cart__item" data-id="${values.productId}" data-color="${
+      values.color
+    }">
       <div class="cart__item__img">
       <img src="${values.imgSrc}" alt="${values.imgTxt}">
       </div>
@@ -20,12 +22,14 @@ if (productSavedToLocal === null) {
         <div class="cart__item__content__description">
           <h2>${values.name}</h2>
           <p>${values.color}</p>
-          <p>${values.price} €</p>
+          <p>${numberWithSpaces(values.price)} €</p>
         </div>
         <div class="cart__item__content__settings">
           <div class="cart__item__content__settings__quantity">
             <p>Qté : ${values.quantity}</p>
-            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${values.quantity}">
+            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${
+              values.quantity
+            }">
           </div>
           <div class="cart__item__content__settings__delete">
             <p class="deleteItem">Supprimer</p>
@@ -35,10 +39,6 @@ if (productSavedToLocal === null) {
     </article>`;
   });
   cartItems.innerHTML = displayCartItems;
-  //@need to show just the price numbers with space for thousands...!
-  numberWithSpaces(
-    document.querySelectorAll(".cart__item__content__description >p:last-child")
-  );
 }
 
 //Delete items from cart
@@ -67,9 +67,9 @@ for (let i = 0; i < deleteCartItems.length; i++) {
 let totalQuantity = document.getElementById("totalQuantity");
 function sumQuantity() {
   let sum = 0;
-  //If cart is empty: display 0 @shows undefined - not working because it conflicts with the else innerHTML...?
-  if (productSavedToLocal === null) {
-    totalQuantity.innerHTML = "0";
+  //If cart is empty:
+  if ((productSavedToLocal === null) | (productSavedToLocal === [])) {
+    return "0";
   }
   //If cart is not empty: calculate and display sum
   else {
@@ -108,12 +108,8 @@ for (let i = 0; i < quantityInput.length; i++) {
 let displayTotalPrice = document.getElementById("totalPrice");
 function sumTotalPrice() {
   let totalPrice = 0;
-  //If cart is empty: display 0 @shows undefined - not working because it conflicts with the else innerHTML...?
-  if (productSavedToLocal === null) {
-    displayTotalPrice.innerHTML = "0";
-  }
-  //If cart is not empty:
-  else {
+  //If cart is empty:
+  if (productSavedToLocal !== null) {
     for (let i = 0; i < productSavedToLocal.length; i++) {
       totalPrice +=
         productSavedToLocal[i].price * productSavedToLocal[i].quantity;
@@ -128,6 +124,7 @@ document.getElementById("totalPrice").innerHTML = numberWithSpaces(
 //Function to display numbers 999+ with spaces (Fr style)
 function numberWithSpaces(x) {
   if (productSavedToLocal === null) {
+    return "0";
   }
   //If cart is not empty:
   else {
@@ -219,15 +216,15 @@ function formValidationEmail() {
 orderButton.addEventListener("click", function (e) {
   e.preventDefault();
   //1. Object to which valid user answers will be saved once they click "commander" button
-  const orderContact = {
+  const contact = {
     firstName: firstName.value,
     lastName: lastName.value,
     address: address.value,
     city: city.value,
     email: email.value,
   };
-  console.log(orderContact);
-  //2. Add answers to local storage if values correctly entered - @help: error alert msg doesn't show for items past first name if firstname is already entered incorrectly
+  console.log(contact);
+  //2. Add answers to local storage if values correctly entered
   if (
     formValidationFirstName() &&
     formValidationLastName() &&
@@ -235,23 +232,42 @@ orderButton.addEventListener("click", function (e) {
     formValidationAddress() &&
     formValidationEmail()
   ) {
-    localStorage.setItem("orderContact", JSON.stringify(orderContact));
+    localStorage.setItem("orderContact", JSON.stringify(contact));
   } else {
     alert("Veuillez bien remplir le formulaire.");
+    return;
   }
   //3. Save form input values along with products in cart into an object in prep to send to server
-  const orderCart = {
-    productSavedToLocal,
-    orderContact,
-  };
+  function createBodyOrder() {
+    let products = [];
+    for (i = 0; i < productSavedToLocal.length; i++) {
+      products.push(productSavedToLocal[i].productId);
+    }
+    return JSON.stringify({ contact, products });
+  }
   //4. Send "orderCart" object to server
-
-  fetch("http://localhost:3000/api/order", {
+  fetch("http://localhost:3000/api/products/order", {
     method: "POST",
     headers: {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: JSON.stringify(orderCart),
-  });
+    body: createBodyOrder(),
+  })
+    .then(function (res) {
+      if (res.ok) {
+        return res.json();
+      }
+    })
+    .then(function (data) {
+      debugger;
+      console.log(data);
+      //  localStorage.clear();
+      window.location.href = `./confirmation.html?id=${data.orderId}`;
+    })
+    // Catch error
+    .catch(function (err) {
+      console.log(err + "with clearing local storage");
+      alert("Problem with order confirmation.");
+    });
 });
