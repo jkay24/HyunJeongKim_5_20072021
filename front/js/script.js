@@ -9,7 +9,6 @@ async function getApi(url) {
       }
     })
     .then(function (data) {
-      console.log(data);
       showItems(data);
     })
     // Catch error

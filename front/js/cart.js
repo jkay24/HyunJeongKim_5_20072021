@@ -2,7 +2,6 @@
 
 //Bring up products added to cart local storage
 let productSavedToLocal = JSON.parse(localStorage.getItem("product"));
-console.log(productSavedToLocal);
 const cartItems = document.getElementById("cart__items");
 
 //DISPLAY PRODUCTS IN CART ON RECAP TABLE
@@ -218,10 +217,12 @@ function formValidationEmail() {
   }
 }
 
-//RECOVER FORM INPUT VALUES, SAVE TO LOCALSTORAGE AND SEND TO SERVER
+//RECOVER ORDER FORM INPUT VALUES, SAVE TO LOCALSTORAGE AND SEND TO SERVER
+
+//Function to save input values and send with cart items to server
 orderButton.addEventListener("click", function (e) {
   e.preventDefault();
-  //1. Object to which valid user answers will be saved once they click "commander" button
+  //Object to which valid user answers will be saved once they click "commander" button
   const contact = {
     firstName: firstName.value,
     lastName: lastName.value,
@@ -229,8 +230,7 @@ orderButton.addEventListener("click", function (e) {
     city: city.value,
     email: email.value,
   };
-  console.log(contact);
-  //2. Add answers to local storage if values correctly entered
+  //1. Add answers to local storage if values correctly entered
   if (
     formValidationFirstName() &&
     formValidationLastName() &&
@@ -243,7 +243,7 @@ orderButton.addEventListener("click", function (e) {
     alert("Veuillez bien remplir le formulaire.");
     return;
   }
-  //3. Save form input values along with products in cart into an object and stringify
+  //Function to save form input values along with products in cart into an object and stringify
   function createBodyOrder() {
     let products = [];
     for (i = 0; i < productSavedToLocal.length; i++) {
@@ -251,7 +251,7 @@ orderButton.addEventListener("click", function (e) {
     }
     return JSON.stringify({ contact, products });
   }
-  //4. Send to server and redirect to confirmation page with order ID
+  //2. Send to server and redirect to confirmation page with order ID
   fetch("http://localhost:3000/api/products/order", {
     method: "POST",
     headers: {
@@ -266,7 +266,6 @@ orderButton.addEventListener("click", function (e) {
       }
     })
     .then(function (data) {
-      console.log(data);
       localStorage.clear();
       window.location.href = `./confirmation.html?id=${data.orderId}`;
     })
