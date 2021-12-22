@@ -1,9 +1,11 @@
+//********************DISPLAY OBJECTS IN CART AND ALLOW MANIPULATION BEFORE ORDERING**************
+
 //Bring up products added to cart local storage
 let productSavedToLocal = JSON.parse(localStorage.getItem("product"));
 console.log(productSavedToLocal);
 const cartItems = document.getElementById("cart__items");
 
-//Display products in cart on recap table
+//DISPLAY PRODUCTS IN CART ON RECAP TABLE
 if (productSavedToLocal === null) {
   //if cart is empty:
   cartItems.innerHTML = "Le panier est vide.";
@@ -41,7 +43,46 @@ if (productSavedToLocal === null) {
   cartItems.innerHTML = displayCartItems;
 }
 
-//Delete items from cart
+//SHOW QTY AND PRICE TOTALS
+
+//Display total cart quantity
+let totalQuantity = document.getElementById("totalQuantity");
+function sumQuantity() {
+  let sum = 0;
+  //If cart is empty:
+  if ((productSavedToLocal === null) | (productSavedToLocal === [])) {
+    return "0";
+  }
+  //If cart is not empty: calculate and display sum
+  else {
+    for (let i = 0; i < productSavedToLocal.length; i++) {
+      sum += productSavedToLocal[i].quantity;
+    }
+    return sum;
+  }
+}
+totalQuantity.innerHTML = sumQuantity();
+
+//Display total cart price
+let displayTotalPrice = document.getElementById("totalPrice");
+function sumTotalPrice() {
+  let totalPrice = 0;
+  //If cart is empty:
+  if (productSavedToLocal !== null) {
+    for (let i = 0; i < productSavedToLocal.length; i++) {
+      totalPrice +=
+        productSavedToLocal[i].price * productSavedToLocal[i].quantity;
+    }
+    return totalPrice;
+  }
+}
+document.getElementById("totalPrice").innerHTML = numberWithSpaces(
+  sumTotalPrice()
+);
+
+//MODIFY CART ITEMS (DELETE AND MODIFY QTY) AND UPDATE QTY AND PRICE TOTALS
+
+//Allow deletion of items from cart
 let deleteCartItems = document.getElementsByClassName("deleteItem");
 for (let i = 0; i < deleteCartItems.length; i++) {
   let button = deleteCartItems[i];
@@ -62,24 +103,6 @@ for (let i = 0; i < deleteCartItems.length; i++) {
     sumTotalPrice();
   });
 }
-
-//Display total cart quantity
-let totalQuantity = document.getElementById("totalQuantity");
-function sumQuantity() {
-  let sum = 0;
-  //If cart is empty:
-  if ((productSavedToLocal === null) | (productSavedToLocal === [])) {
-    return "0";
-  }
-  //If cart is not empty: calculate and display sum
-  else {
-    for (let i = 0; i < productSavedToLocal.length; i++) {
-      sum += productSavedToLocal[i].quantity;
-    }
-    return sum;
-  }
-}
-totalQuantity.innerHTML = sumQuantity();
 
 //Update total cart quantity upon user modification
 let quantityInput = document.getElementsByClassName("itemQuantity");
@@ -103,23 +126,6 @@ for (let i = 0; i < quantityInput.length; i++) {
     sumTotalPrice();
   });
 }
-
-//Display cart total price
-let displayTotalPrice = document.getElementById("totalPrice");
-function sumTotalPrice() {
-  let totalPrice = 0;
-  //If cart is empty:
-  if (productSavedToLocal !== null) {
-    for (let i = 0; i < productSavedToLocal.length; i++) {
-      totalPrice +=
-        productSavedToLocal[i].price * productSavedToLocal[i].quantity;
-    }
-    return totalPrice;
-  }
-}
-document.getElementById("totalPrice").innerHTML = numberWithSpaces(
-  sumTotalPrice()
-);
 
 //Function to display numbers 999+ with spaces (Fr style)
 function numberWithSpaces(x) {
@@ -145,7 +151,7 @@ const cityError = document.getElementById("cityErrorMsg");
 const email = document.getElementById("email");
 const emailError = document.getElementById("emailErrorMsg");
 
-//Functions to check validity of order form input values
+//FUNCTIONS TO CONTROL VALIDITY OF FORM INPUT VALUES
 
 //Same test for first and last names and city
 const regExNamesCity = (value) => {
@@ -212,7 +218,7 @@ function formValidationEmail() {
   }
 }
 
-//Recover form input values, save to localstorage and send to server along with items in cart
+//RECOVER FORM INPUT VALUES, SAVE TO LOCALSTORAGE AND SEND TO SERVER
 orderButton.addEventListener("click", function (e) {
   e.preventDefault();
   //1. Object to which valid user answers will be saved once they click "commander" button
@@ -237,7 +243,7 @@ orderButton.addEventListener("click", function (e) {
     alert("Veuillez bien remplir le formulaire.");
     return;
   }
-  //3. Save form input values along with products in cart into an object in prep to send to server
+  //3. Save form input values along with products in cart into an object and stringify
   function createBodyOrder() {
     let products = [];
     for (i = 0; i < productSavedToLocal.length; i++) {
@@ -245,7 +251,7 @@ orderButton.addEventListener("click", function (e) {
     }
     return JSON.stringify({ contact, products });
   }
-  //4. Send "orderCart" object to server
+  //4. Send to server and redirect to confirmation page with order ID
   fetch("http://localhost:3000/api/products/order", {
     method: "POST",
     headers: {
@@ -260,9 +266,8 @@ orderButton.addEventListener("click", function (e) {
       }
     })
     .then(function (data) {
-      debugger;
       console.log(data);
-      //  localStorage.clear();
+      localStorage.clear();
       window.location.href = `./confirmation.html?id=${data.orderId}`;
     })
     // Catch error
