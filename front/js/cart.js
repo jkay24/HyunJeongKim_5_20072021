@@ -8,7 +8,7 @@ if (productSavedToLocal === null) {
   //if cart is empty:
   cartItems.innerHTML = "Le panier est vide.";
 } else {
-  //if cart is not empty: @need to show just the price numbers with space for thousands...!
+  //if cart is not empty:
   let displayCartItems = [];
   productSavedToLocal.map((values) => {
     displayCartItems += `
@@ -35,6 +35,10 @@ if (productSavedToLocal === null) {
     </article>`;
   });
   cartItems.innerHTML = displayCartItems;
+  //@need to show just the price numbers with space for thousands...!
+  numberWithSpaces(
+    document.querySelectorAll(".cart__item__content__description >p:last-child")
+  );
 }
 
 //Delete items from cart
@@ -130,3 +134,115 @@ function numberWithSpaces(x) {
     return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
   }
 }
+
+//**********************************ORDER FORM****************************************************
+const orderButton = document.getElementById("order");
+const firstName = document.getElementById("firstName");
+const firstNameError = document.getElementById("firstNameErrorMsg");
+const lastName = document.getElementById("lastName");
+const lastNameError = document.getElementById("lastNameErrorMsg");
+const address = document.getElementById("address");
+const addressError = document.getElementById("addressErrorMsg");
+const city = document.getElementById("city");
+const cityError = document.getElementById("cityErrorMsg");
+const email = document.getElementById("email");
+const emailError = document.getElementById("emailErrorMsg");
+
+//Functions to check validity of order form input values
+
+//Same test for first and last names and city
+const regExNamesCity = (value) => {
+  return /^[a-zA-Z\s]{2,20}$/.test(value);
+};
+//Same error msg for first and last names and city
+const textAlert = (value) => {
+  return `Veuillez saisir un ${value} valide entre 2 à 20 lettres, sans chiffre ni symbole.`;
+};
+//Test for address
+const regExAddress = /^[0-9]{1,4}\s[a-zA-Z]{2,30}\s[a-zA-Z]{2,15}$/;
+//Test for email address
+const regExEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+
+function formValidationFirstName() {
+  if (regExNamesCity(firstName.value)) {
+    firstNameError.innerHTML = "";
+    return true;
+  } else {
+    firstNameError.innerHTML = textAlert("prénom");
+    return false;
+  }
+}
+
+function formValidationLastName() {
+  if (regExNamesCity(lastName.value)) {
+    lastNameError.innerHTML = "";
+    return true;
+  } else {
+    lastNameError.innerHTML = textAlert("nom");
+    return false;
+  }
+}
+
+function formValidationCity() {
+  if (regExNamesCity(city.value)) {
+    cityError.innerHTML = "";
+    return true;
+  } else {
+    cityError.innerHTML =
+      "Veuillez saisir le nom d'une ville valide entre 2 à 20 lettres, sans chiffre ni symbole.";
+    return false;
+  }
+}
+
+function formValidationAddress() {
+  if (regExAddress.test(address.value)) {
+    addressError.innerHTML = "";
+    return true;
+  } else {
+    addressError.innerHTML =
+      "Veuillez saisir une adresse valide avec le numéro et le nom de la rue, sans ponctuation.";
+    return false;
+  }
+}
+
+function formValidationEmail() {
+  if (regExEmail.test(email.value)) {
+    emailError.innerHTML = "";
+    return true;
+  } else {
+    emailError.innerHTML = "Veuillez saisir une adresse mail valide.";
+    return false;
+  }
+}
+
+//Recover form input values, save to localstorage and send to server along with items in cart
+orderButton.addEventListener("click", function (e) {
+  e.preventDefault();
+  //1. Object to which valid user answers will be saved once they click "commander" button
+  const orderContact = {
+    firstName: firstName.value,
+    lastName: lastName.value,
+    address: address.value,
+    city: city.value,
+    email: email.value,
+  };
+  console.log(orderContact);
+  //2. Add answers to local storage if values correctly entered - @help: error alert msg doesn't show for items past first name if firstname is already entered incorrectly
+  if (
+    formValidationFirstName() &&
+    formValidationLastName() &&
+    formValidationCity() &&
+    formValidationAddress() &&
+    formValidationEmail()
+  ) {
+    localStorage.setItem("orderContact", JSON.stringify(orderContact));
+  } else {
+    alert("Veuillez bien remplir le formulaire.");
+  }
+  //3. Save form input values along with products in cart into an object in prep to send to server
+  const orderCart = {
+    productSavedToLocal,
+    orderContact,
+  };
+  //4. Send "orderCart" object to server
+});
