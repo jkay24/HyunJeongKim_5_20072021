@@ -159,7 +159,7 @@ const textAlert = (value) => {
   return `Veuillez saisir un ${value} valide entre 2 à 20 lettres, sans chiffre ni symbole.`;
 };
 //Test for address
-const regExAddress = /^[0-9]{1,4}\s[a-zA-Z]{2,30}\s[a-zA-Z]{2,15}$/;
+const regExAddress = /^\d+\s[A-z]+\s[A-z]+/;
 //Test for email address
 const regExEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
@@ -245,4 +245,13 @@ orderButton.addEventListener("click", function (e) {
     orderContact,
   };
   //4. Send "orderCart" object to server
+
+  fetch("http://localhost:3000/api/order", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(orderCart),
+  });
 });
