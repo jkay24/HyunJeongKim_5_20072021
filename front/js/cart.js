@@ -27,10 +27,10 @@ if (productSavedToLocal === null) {
         </div>
         <div class="cart__item__content__settings">
           <div class="cart__item__content__settings__quantity">
-            <p>Qté : ${values.quantity}</p>
+            <p>Qté : 
             <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${
               values.quantity
-            }">
+            }"></p>
           </div>
           <div class="cart__item__content__settings__delete">
             <p class="deleteItem">Supprimer</p>
@@ -94,12 +94,12 @@ for (let i = 0; i < deleteCartItems.length; i++) {
     localStorage.setItem("product", JSON.stringify(productSavedToLocal));
     //Then update total quantity in cart and refresh - @can I do this without reloading?
     sumQuantity();
+    sumTotalPrice();
     window.location.href = "cart.html";
     //If all items have been deleted, remove product key from local storage so above function can display "Le panier est vide." message
     if (sumQuantity(productSavedToLocal) === 0) {
       localStorage.removeItem("product");
     }
-    sumTotalPrice();
   });
 }
 
@@ -111,18 +111,13 @@ for (let i = 0; i < quantityInput.length; i++) {
     e.preventDefault();
     let input = e.target;
     input.innerHTML = input.value;
-    //document.querySelector(
-    //   `.cart__item__content__settings__quantity:nth-child(${i + 1}) > p`
-    //).innerHTML = "Qté : " + input.value;
-    //
-
     //Then also update quantity in local storage
     productSavedToLocal[i].quantity = parseInt(input.value);
     localStorage.setItem("product", JSON.stringify(productSavedToLocal));
     //Then update total quantity in cart and refresh - @can I do this without reloading?
     sumQuantity();
-    window.location.href = "cart.html";
     sumTotalPrice();
+    window.location.href = "cart.html";
   });
 }
 
