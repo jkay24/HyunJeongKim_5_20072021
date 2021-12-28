@@ -49,17 +49,12 @@ let totalQuantity = document.getElementById("totalQuantity");
 sumQuantity();
 function sumQuantity() {
   let sum = 0;
-  //If cart is empty:
-  if ((productSavedToLocal === null) | (productSavedToLocal === [])) {
-    return "0";
-  }
-  //If cart is not empty: calculate and display sum
-  else {
+  if (productSavedToLocal) {
     for (let i = 0; i < productSavedToLocal.length; i++) {
       sum += productSavedToLocal[i].quantity;
     }
-    totalQuantity.innerHTML = sum;
   }
+  totalQuantity.innerHTML = sum || "0";
 }
 
 //Display total cart price
@@ -67,14 +62,13 @@ let displayTotalPrice = document.getElementById("totalPrice");
 sumTotalPrice();
 function sumTotalPrice() {
   let totalPrice = 0;
-  //If cart is empty:
-  if (productSavedToLocal !== null) {
+  if (productSavedToLocal) {
     for (let i = 0; i < productSavedToLocal.length; i++) {
       totalPrice +=
         productSavedToLocal[i].price * productSavedToLocal[i].quantity;
     }
-    displayTotalPrice.innerHTML = numberWithSpaces(totalPrice);
   }
+  displayTotalPrice.innerHTML = numberWithSpaces(totalPrice) || "0";
 }
 
 //MODIFY CART ITEMS (DELETE AND MODIFY QTY) AND UPDATE QTY AND PRICE TOTALS
@@ -90,12 +84,13 @@ for (let i = 0; i < deleteCartItems.length; i++) {
     //Then delete also from local storage
     productSavedToLocal.splice(i, 1);
     localStorage.setItem("product", JSON.stringify(productSavedToLocal));
-    //Then update total quantity in cart
+    //Then update total quantity and price in cart
     sumQuantity();
     sumTotalPrice();
     //If all items have been deleted, remove product key from local storage so above function can display "Le panier est vide." message
-    if (sumQuantity(productSavedToLocal) === 0) {
+    if (totalQuantity.innerHTML == "0") {
       localStorage.removeItem("product");
+      cartItems.innerHTML = "Le panier est vide.";
     }
   });
 }
@@ -111,7 +106,7 @@ for (let i = 0; i < quantityInput.length; i++) {
     //Then also update quantity in local storage
     productSavedToLocal[i].quantity = parseInt(input.value);
     localStorage.setItem("product", JSON.stringify(productSavedToLocal));
-    //Then update total quantity in cart and refresh
+    //Then update total quantity and price
     sumQuantity();
     sumTotalPrice();
   });
@@ -157,13 +152,9 @@ const regExAddress = /^\d+\s[A-z]+\s[A-z]+/;
 const regExEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 
 function formValidationFirstName() {
-  if (regExNamesCity(firstName.value)) {
-    firstNameError.innerHTML = "";
-    return true;
-  } else {
-    firstNameError.innerHTML = textAlert("prénom");
-    return false;
-  }
+  const isCorrect = regExNamesCity(firstName.value);
+  firstNameError.innerHTML = isCorrect ? "" : textAlert("prénom");
+  return isCorrect;
 }
 
 function formValidationLastName() {
@@ -210,6 +201,21 @@ function formValidationEmail() {
 
 //RECOVER ORDER FORM INPUT VALUES, SAVE TO LOCALSTORAGE AND SEND TO SERVER
 
+//Function to save form input values along with products in cart into an object and stringify
+function createBodyOrder(contact) {
+  let products = [];
+  for (i = 0; i < productSavedToLocal.length; i++) {
+    products.push(productSavedToLocal[i].productId);
+  }
+  return JSON.stringify({ contact, products });
+}
+
+//If cart is empty, order button is disabled
+if (!productSavedToLocal) {
+  orderButton.setAttribute("disabled", true);
+  orderButton.style.cursor = "not-allowed";
+}
+
 //Function to save input values and send with cart items to server
 orderButton.addEventListener("click", function (e) {
   e.preventDefault();
@@ -234,14 +240,7 @@ orderButton.addEventListener("click", function (e) {
     alert("Veuillez bien remplir le formulaire.");
     return;
   }
-  //Function to save form input values along with products in cart into an object and stringify
-  function createBodyOrder() {
-    let products = [];
-    for (i = 0; i < productSavedToLocal.length; i++) {
-      products.push(productSavedToLocal[i].productId);
-    }
-    return JSON.stringify({ contact, products });
-  }
+
   //2. Send to server and redirect to confirmation page with order ID
   fetch("http://localhost:3000/api/products/order", {
     method: "POST",
@@ -249,7 +248,7 @@ orderButton.addEventListener("click", function (e) {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
-    body: createBodyOrder(),
+    body: createBodyOrder(contact),
   })
     .then(function (res) {
       if (res.ok) {
