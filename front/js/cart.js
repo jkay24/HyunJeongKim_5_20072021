@@ -46,6 +46,7 @@ if (productSavedToLocal === null) {
 
 //Display total cart quantity
 let totalQuantity = document.getElementById("totalQuantity");
+sumQuantity();
 function sumQuantity() {
   let sum = 0;
   //If cart is empty:
@@ -57,13 +58,13 @@ function sumQuantity() {
     for (let i = 0; i < productSavedToLocal.length; i++) {
       sum += productSavedToLocal[i].quantity;
     }
-    return sum;
+    totalQuantity.innerHTML = sum;
   }
 }
-totalQuantity.innerHTML = sumQuantity();
 
 //Display total cart price
 let displayTotalPrice = document.getElementById("totalPrice");
+sumTotalPrice();
 function sumTotalPrice() {
   let totalPrice = 0;
   //If cart is empty:
@@ -72,12 +73,9 @@ function sumTotalPrice() {
       totalPrice +=
         productSavedToLocal[i].price * productSavedToLocal[i].quantity;
     }
-    return totalPrice;
+    displayTotalPrice.innerHTML = numberWithSpaces(totalPrice);
   }
 }
-document.getElementById("totalPrice").innerHTML = numberWithSpaces(
-  sumTotalPrice()
-);
 
 //MODIFY CART ITEMS (DELETE AND MODIFY QTY) AND UPDATE QTY AND PRICE TOTALS
 
@@ -92,10 +90,9 @@ for (let i = 0; i < deleteCartItems.length; i++) {
     //Then delete also from local storage
     productSavedToLocal.splice(i, 1);
     localStorage.setItem("product", JSON.stringify(productSavedToLocal));
-    //Then update total quantity in cart and refresh - @can I do this without reloading?
+    //Then update total quantity in cart
     sumQuantity();
     sumTotalPrice();
-    window.location.href = "cart.html";
     //If all items have been deleted, remove product key from local storage so above function can display "Le panier est vide." message
     if (sumQuantity(productSavedToLocal) === 0) {
       localStorage.removeItem("product");
@@ -114,10 +111,9 @@ for (let i = 0; i < quantityInput.length; i++) {
     //Then also update quantity in local storage
     productSavedToLocal[i].quantity = parseInt(input.value);
     localStorage.setItem("product", JSON.stringify(productSavedToLocal));
-    //Then update total quantity in cart and refresh - @can I do this without reloading?
+    //Then update total quantity in cart and refresh
     sumQuantity();
     sumTotalPrice();
-    window.location.href = "cart.html";
   });
 }
 
