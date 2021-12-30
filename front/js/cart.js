@@ -92,6 +92,8 @@ for (let i = 0; i < deleteCartItems.length; i++) {
       localStorage.removeItem("product");
       cartItems.innerHTML = "Le panier est vide.";
     }
+    //If all items have been deleted, disable order button - @NOT WORKING
+    disableOrder();
   });
 }
 
@@ -114,7 +116,7 @@ for (let i = 0; i < quantityInput.length; i++) {
 
 //Function to display numbers 999+ with spaces (Fr style)
 function numberWithSpaces(x) {
-  if (productSavedToLocal === null) {
+  if (!productSavedToLocal) {
     return "0";
   }
   //If cart is not empty:
@@ -142,7 +144,7 @@ const emailError = document.getElementById("emailErrorMsg");
 const regExNamesCity = (value) => {
   return /^[a-zA-Z\s]{2,20}$/.test(value);
 };
-//Same error msg for first and last names and city
+//Same error msg for first and last names
 const textAlert = (value) => {
   return `Veuillez saisir un ${value} valide entre 2 à 20 lettres, sans chiffre ni symbole.`;
 };
@@ -158,48 +160,45 @@ function formValidationFirstName() {
 }
 
 function formValidationLastName() {
-  if (regExNamesCity(lastName.value)) {
-    lastNameError.innerHTML = "";
-    return true;
-  } else {
-    lastNameError.innerHTML = textAlert("nom");
-    return false;
-  }
+  const isCorrect = regExNamesCity(lastName.value);
+  lastNameError.innerHTML = isCorrect ? "" : textAlert("nom");
+  return isCorrect;
 }
 
 function formValidationCity() {
-  if (regExNamesCity(city.value)) {
-    cityError.innerHTML = "";
-    return true;
-  } else {
-    cityError.innerHTML =
-      "Veuillez saisir le nom d'une ville valide entre 2 à 20 lettres, sans chiffre ni symbole.";
-    return false;
-  }
+  const isCorrect = regExNamesCity(city.value);
+  cityError.innerHTML = isCorrect
+    ? ""
+    : "Veuillez saisir le nom d'une ville valide entre 2 à 20 lettres, sans chiffre ni symbole.";
+  return isCorrect;
 }
 
 function formValidationAddress() {
-  if (regExAddress.test(address.value)) {
-    addressError.innerHTML = "";
-    return true;
-  } else {
-    addressError.innerHTML =
-      "Veuillez saisir une adresse valide avec le numéro et le nom de la rue, sans ponctuation.";
-    return false;
-  }
+  const isCorrect = regExAddress(address.value);
+  addressError.innerHTML = isCorrect
+    ? ""
+    : "Veuillez saisir une adresse valide avec le numéro et le nom de la rue, sans ponctuation.";
+  return isCorrect;
 }
 
 function formValidationEmail() {
-  if (regExEmail.test(email.value)) {
-    emailError.innerHTML = "";
-    return true;
-  } else {
-    emailError.innerHTML = "Veuillez saisir une adresse mail valide.";
-    return false;
-  }
+  const isCorrect = regExEmail(email.value);
+  emailError.innerHTML = isCorrect
+    ? ""
+    : "Veuillez saisir une adresse mail valide.";
+  return isCorrect;
 }
 
 //RECOVER ORDER FORM INPUT VALUES, SAVE TO LOCALSTORAGE AND SEND TO SERVER
+
+//If cart is empty, order button is disabled
+disableOrder();
+function disableOrder() {
+  if (!productSavedToLocal) {
+    orderButton.setAttribute("disabled", true);
+    orderButton.style.cursor = "not-allowed";
+  }
+}
 
 //Function to save form input values along with products in cart into an object and stringify
 function createBodyOrder(contact) {
@@ -208,12 +207,6 @@ function createBodyOrder(contact) {
     products.push(productSavedToLocal[i].productId);
   }
   return JSON.stringify({ contact, products });
-}
-
-//If cart is empty, order button is disabled
-if (!productSavedToLocal) {
-  orderButton.setAttribute("disabled", true);
-  orderButton.style.cursor = "not-allowed";
 }
 
 //Function to save input values and send with cart items to server
@@ -240,7 +233,6 @@ orderButton.addEventListener("click", function (e) {
     alert("Veuillez bien remplir le formulaire.");
     return;
   }
-
   //2. Send to server and redirect to confirmation page with order ID
   fetch("http://localhost:3000/api/products/order", {
     method: "POST",
