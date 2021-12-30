@@ -92,7 +92,7 @@ for (let i = 0; i < deleteCartItems.length; i++) {
       localStorage.removeItem("product");
       cartItems.innerHTML = "Le panier est vide.";
     }
-    //If all items have been deleted, disable order button - @NOT WORKING
+    //If all items have been deleted, disable order button
     disableOrder();
   });
 }
@@ -194,7 +194,7 @@ function formValidationEmail() {
 //If cart is empty, order button is disabled
 disableOrder();
 function disableOrder() {
-  if (!productSavedToLocal) {
+  if (!productSavedToLocal || productSavedToLocal.length === 0) {
     orderButton.setAttribute("disabled", true);
     orderButton.style.cursor = "not-allowed";
   }
