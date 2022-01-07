@@ -144,14 +144,21 @@ const emailError = document.getElementById("emailErrorMsg");
 const regExNamesCity = (value) => {
   return /^[a-zA-Z\s]{2,20}$/.test(value);
 };
+
 //Same error msg for first and last names
 const textAlert = (value) => {
   return `Veuillez saisir un ${value} valide entre 2 à 20 lettres, sans chiffre ni symbole.`;
 };
+
 //Test for address
-const regExAddress = /^\d+\s[A-z]+\s[A-z]+/;
+const regExAddress = (value) => {
+  return /^\d+\s[A-z]+\s[A-z]+/.test(value);
+};
+
 //Test for email address
-const regExEmail = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+const regExEmail = (value) => {
+  return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value);
+};
 
 function formValidationFirstName() {
   const isCorrect = regExNamesCity(firstName.value);
