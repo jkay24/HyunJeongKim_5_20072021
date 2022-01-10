@@ -47,7 +47,7 @@ function addToCart(eachItemData) {
     //1. Check first if quantity input is 0 or negative - if so, display alert and then refresh (do not add to cart)
     if (userQuantityChoice <= 0) {
       alert(
-        "Il n'est pas possible d'ajouter un nombre d'articles inférieur à zéro."
+        "Il n'est pas possible d'ajouter un nombre d'articles égal ou inférieur à zéro."
       );
       location.reload();
     } else {

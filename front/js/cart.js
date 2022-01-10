@@ -10,36 +10,93 @@ if (productSavedToLocal === null) {
   cartItems.innerHTML = "Le panier est vide.";
 } else {
   //if cart is not empty:
-  let displayCartItems = [];
-  productSavedToLocal.map((values) => {
-    displayCartItems += `
-      <article class="cart__item" data-id="${values.productId}" data-color="${
-      values.color
-    }">
-      <div class="cart__item__img">
-      <img src="${values.imgSrc}" alt="${values.imgTxt}">
-      </div>
-      <div class="cart__item__content">
-        <div class="cart__item__content__description">
-          <h2>${values.name}</h2>
-          <p>${values.color}</p>
-          <p>${numberWithSpaces(values.price)} €</p>
-        </div>
-        <div class="cart__item__content__settings">
-          <div class="cart__item__content__settings__quantity">
-            <p>Qté : 
-            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${
-              values.quantity
-            }"></p>
-          </div>
-          <div class="cart__item__content__settings__delete">
-            <p class="deleteItem">Supprimer</p>
-          </div>
-        </div>
-      </div>
-    </article>`;
-  });
-  cartItems.innerHTML = displayCartItems;
+  for (let i in productSavedToLocal) {
+    //Create article cart__item as child of cartItems section
+    let cart__item = document.createElement("article");
+    cart__item.className = "cart__item";
+    cart__item.setAttribute("data-id", `${productSavedToLocal[i].productId}`);
+    cart__item.setAttribute("data-color", `${productSavedToLocal[i].color}`);
+    cartItems.appendChild(cart__item);
+
+    //Create img div as child of article
+    let cart__item__img = document.createElement("div");
+    cart__item__img.className = "cart__item__img";
+    cart__item.appendChild(cart__item__img);
+
+    //Create img as child of img div
+    let itemImage = document.createElement("img");
+    itemImage.alt = productSavedToLocal[i].imgTxt;
+    itemImage.src = productSavedToLocal[i].imgSrc;
+    cart__item__img.appendChild(itemImage);
+
+    //Create content div as child of article
+    let cart__item__content = document.createElement("div");
+    cart__item__content.className = "cart__item__content";
+    cart__item.appendChild(cart__item__content);
+
+    //Create descr div as child of content div
+    let cart__item__content__description = document.createElement("div");
+    cart__item__content__description.className =
+      "cart__item__content__description";
+    cart__item__content.appendChild(cart__item__content__description);
+
+    //Create h2 as child of descr div
+    let itemName = document.createElement("h2");
+    itemName.innerHTML = `${productSavedToLocal[i].name}`;
+    cart__item__content__description.appendChild(itemName);
+
+    //Create color p as child of descr div
+    let itemColor = document.createElement("p");
+    itemColor.innerHTML = `${productSavedToLocal[i].color}`;
+    cart__item__content__description.appendChild(itemColor);
+
+    //Create price p as child of descr div
+    let itemPrice = document.createElement("p");
+    itemPrice.innerHTML = `${numberWithSpaces(productSavedToLocal[i].price)} €`;
+    cart__item__content__description.appendChild(itemPrice);
+
+    //Create content settings div as child of content div
+    let cart__item__content__settings = document.createElement("div");
+    cart__item__content__settings.className = "cart__item__content__settings";
+    cart__item__content.appendChild(cart__item__content__settings);
+
+    //Create quantity div as child of content settings div
+    let cart__item__content__settings__quantity = document.createElement("div");
+    cart__item__content__settings__quantity.className =
+      "cart__item__content__settings__quantity";
+    cart__item__content__settings.appendChild(
+      cart__item__content__settings__quantity
+    );
+
+    //Create qty p as child of quantity div
+    let qte = document.createElement("p");
+    qte.innerHTML = `Qté : `;
+    cart__item__content__settings__quantity.appendChild(qte);
+
+    //Create input as child of qty p
+    let numberInput = document.createElement("input");
+    numberInput.setAttribute("type", "number");
+    numberInput.className = "itemQuantity";
+    numberInput.setAttribute("name", "itemQuantity");
+    numberInput.setAttribute("min", "1");
+    numberInput.setAttribute("max", "100");
+    numberInput.setAttribute("value", `${productSavedToLocal[i].quantity}`);
+    qte.appendChild(numberInput);
+
+    //Create delete div as child of content settings div
+    let cart__item__content__settings__delete = document.createElement("div");
+    cart__item__content__settings__delete.className =
+      "cart__item__content__settings__delete";
+    cart__item__content__settings.appendChild(
+      cart__item__content__settings__delete
+    );
+
+    //Create delete p as child of delete div
+    let deleteItem = document.createElement("p");
+    deleteItem.className = "deleteItem";
+    deleteItem.innerHTML = `Supprimer`;
+    cart__item__content__settings__delete.appendChild(deleteItem);
+  }
 }
 
 //SHOW QTY AND PRICE TOTALS
@@ -104,9 +161,10 @@ for (let i = 0; i < quantityInput.length; i++) {
   input.addEventListener("change", function (e) {
     e.preventDefault();
     let input = e.target;
+    //1. Check first if quantity input is 0 or negative - if so, display alert and then refresh (do not update localstorage)
     if (input.value <= 0) {
       alert(
-        "Il n'est pas possible d'avoir un nombre d'articles inférieur à zéro. Veuillez supprimer l'article si vous en  voulez pas."
+        "Il n'est pas possible d'avoir un nombre d'articles égal ou inférieur à zéro. Veuillez supprimer l'article si vous en  voulez plus."
       );
       location.reload();
     } else {
