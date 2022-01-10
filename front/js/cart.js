@@ -160,6 +160,7 @@ const regExEmail = (value) => {
   return /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(value);
 };
 
+//Functions showing what to do when input is not valid
 function formValidationFirstName() {
   const isCorrect = regExNamesCity(firstName.value);
   firstNameError.innerHTML = isCorrect ? "" : textAlert("prénom");
