@@ -104,13 +104,19 @@ for (let i = 0; i < quantityInput.length; i++) {
   input.addEventListener("change", function (e) {
     e.preventDefault();
     let input = e.target;
-    input.innerHTML = input.value;
-    //Then also update quantity in local storage
-    productSavedToLocal[i].quantity = parseInt(input.value);
-    localStorage.setItem("product", JSON.stringify(productSavedToLocal));
-    //Then update total quantity and price
-    sumQuantity();
-    sumTotalPrice();
+    if (input.value <= 0) {
+      alert(
+        "Il n'est pas possible d'avoir un nombre d'articles inférieur à zéro."
+      );
+      location.reload();
+    } else {
+      //Then also update quantity in local storage
+      productSavedToLocal[i].quantity = parseInt(input.value);
+      localStorage.setItem("product", JSON.stringify(productSavedToLocal));
+      //Then update total quantity and price
+      sumQuantity();
+      sumTotalPrice();
+    }
   });
 }
 

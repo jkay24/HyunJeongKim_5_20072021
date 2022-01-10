@@ -42,44 +42,52 @@ function addToCart(eachItemData) {
   const addToCartButton = document.getElementById("addToCart");
   addToCartButton.addEventListener("click", (e) => {
     e.preventDefault();
-    //1. Add products to cart with user selections for color and quantity
     const userColorChoice = document.getElementById("colors").value;
     const userQuantityChoice = document.getElementById("quantity").value;
-    let selectedProduct = {
-      name: eachItemData.name,
-      productId: eachItemData._id,
-      quantity: parseInt(userQuantityChoice),
-      color: userColorChoice,
-      imgSrc: eachItemData.imageUrl,
-      imgTxt: eachItemData.altTxt,
-      price: eachItemData.price,
-    };
-    console.log(selectedProduct);
-    //2. Function to add user selections to local storage
-    let productSavedToLocal = JSON.parse(localStorage.getItem("product"));
-    function addToLocalStorage() {
-      productSavedToLocal.push(selectedProduct);
-      localStorage.setItem("product", JSON.stringify(productSavedToLocal));
-    }
-    //if there's already something in local storage, add object to existing array
-    if (productSavedToLocal) {
-      //first check if item with same ID and color has already been selected - if so increment quantity, so that there are no duplicates
-      const ifExists = productSavedToLocal.find(
-        (element) =>
-          element.productId == selectedProduct.productId &&
-          element.color == selectedProduct.color
+    //1. Check first if quantity input is 0 or negative - if so, display alert and then refresh (do not add to cart)
+    if (userQuantityChoice <= 0) {
+      alert(
+        "Il n'est pas possible d'ajouter un nombre d'articles inférieur à zéro."
       );
-      if (ifExists) {
-        ifExists.quantity = ifExists.quantity + selectedProduct.quantity;
+      location.reload();
+    } else {
+      //2. If all good, add products to cart with user selections for color and quantity
+      let selectedProduct = {
+        name: eachItemData.name,
+        productId: eachItemData._id,
+        quantity: parseInt(userQuantityChoice),
+        color: userColorChoice,
+        imgSrc: eachItemData.imageUrl,
+        imgTxt: eachItemData.altTxt,
+        price: eachItemData.price,
+      };
+      console.log(selectedProduct);
+      //3. Function to add user selections to local storage
+      let productSavedToLocal = JSON.parse(localStorage.getItem("product"));
+      function addToLocalStorage() {
+        productSavedToLocal.push(selectedProduct);
         localStorage.setItem("product", JSON.stringify(productSavedToLocal));
-        return;
       }
-      addToLocalStorage();
-    }
-    //if there was nothing in local storage, start new cart
-    else {
-      productSavedToLocal = [];
-      addToLocalStorage();
+      //if there's already something in local storage, add object to existing array
+      if (productSavedToLocal) {
+        //first check if item with same ID and color has already been selected - if so increment quantity, so that there are no duplicates
+        const ifExists = productSavedToLocal.find(
+          (element) =>
+            element.productId == selectedProduct.productId &&
+            element.color == selectedProduct.color
+        );
+        if (ifExists) {
+          ifExists.quantity = ifExists.quantity + selectedProduct.quantity;
+          localStorage.setItem("product", JSON.stringify(productSavedToLocal));
+          return;
+        }
+        addToLocalStorage();
+      }
+      //if there was nothing in local storage, start new cart
+      else {
+        productSavedToLocal = [];
+        addToLocalStorage();
+      }
     }
   });
 }
