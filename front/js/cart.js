@@ -106,7 +106,7 @@ for (let i = 0; i < quantityInput.length; i++) {
     let input = e.target;
     if (input.value <= 0) {
       alert(
-        "Il n'est pas possible d'avoir un nombre d'articles inférieur à zéro."
+        "Il n'est pas possible d'avoir un nombre d'articles inférieur à zéro. Veuillez supprimer l'article si vous en  voulez pas."
       );
       location.reload();
     } else {

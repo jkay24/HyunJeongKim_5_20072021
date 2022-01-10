@@ -9,6 +9,7 @@ async function getApi(url) {
       }
     })
     .then(function (data) {
+      console.log(data);
       showItems(data);
     })
     // Catch error
@@ -20,17 +21,35 @@ async function getApi(url) {
 getApi("http://127.0.0.1:3000/api/products");
 
 //Function to show items on page
+
 function showItems(data) {
-  let itemCards = "";
-  data.map((values) => {
-    itemCards += `
-      <a href="./product.html?id=${values._id}">
-      <article>
-        <img src="${values.imageUrl}" alt="${values.altTxt}">
-        <h3 class="productName">${values.name}</h3>
-        <p class="productDescription">${values.description}</p>
-      </article>
-      </a>`;
-  });
-  document.getElementById("items").innerHTML = itemCards;
+  let sectionItems = document.getElementById("items");
+  for (let i in data) {
+    //Create a with link by productID
+    let productLink = document.createElement("a");
+    productLink.href = `./product.html?id=${data[i]._id}`;
+    sectionItems.appendChild(productLink);
+
+    //Create article as child of each a link
+    let productCard = document.createElement("article");
+    productLink.appendChild(productCard);
+
+    //Create img as child of each product card
+    let productImg = document.createElement("img");
+    productImg.alt = data[i].altTxt;
+    productImg.src = data[i].imageUrl;
+    productCard.appendChild(productImg);
+
+    //Create h3 name as child of each product card
+    let productName = document.createElement("h3");
+    productName.className = "productName";
+    productName.innerHTML = `${data[i].name}`;
+    productCard.appendChild(productName);
+
+    //Create p description as child of each product card
+    let productDescription = document.createElement("p");
+    productDescription.className = "productDescription";
+    productDescription.innerHTML = `${data[i].description}`;
+    productCard.appendChild(productDescription);
+  }
 }
